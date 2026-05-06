@@ -43,11 +43,13 @@ async function initDB() {
   `);
 
   // Create default admin if not exists
-  const admin = await db.get('SELECT * FROM admins WHERE username = ?', ['admin']);
+  const defaultUsername = process.env.ADMIN_USERNAME || 'admin';
+  const defaultPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const admin = await db.get('SELECT * FROM admins WHERE username = ?', [defaultUsername]);
   if (!admin) {
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    await db.run('INSERT INTO admins (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
-    console.log('Default admin created: admin / admin123');
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    await db.run('INSERT INTO admins (username, password) VALUES (?, ?)', [defaultUsername, hashedPassword]);
+    console.log(`Default admin created: ${defaultUsername}`);
   }
 
   console.log('Database initialized.');
